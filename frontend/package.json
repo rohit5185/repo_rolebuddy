@@ -1,0 +1,50 @@
+{
+  "name": "rolebuddy-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev:clean",
+    "dev:clean": "node scripts/clean-next-cache.mjs && next dev",
+    "build": "next build",
+    "start": "next start",
+    "prepare:standalone": "node scripts/prepare-standalone.mjs",
+    "start:standalone": "node scripts/prepare-standalone.mjs && node .next/standalone/server.js",
+    "lint": "next lint",
+    "auth:check": "tsx scripts/auth-client-check.ts",
+    "onboarding:check": "tsx scripts/onboarding-client-check.ts",
+    "test:a11y": "playwright test",
+    "lighthouse:ci": "lhci autorun"
+  },
+  "dependencies": {
+    "@ducanh2912/next-pwa": "10.2.9",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "framer-motion": "12.40.0",
+    "lucide-react": "^0.468.0",
+    "next": "^15.0.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "rolebuddy-backend": "file:../backend",
+    "sharp": "0.34.5",
+    "socket.io-client": "^4.8.1",
+    "tailwind-merge": "^2.5.5"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.11.3",
+    "@lhci/cli": "^0.14.0",
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^22.10.1",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.15.0",
+    "eslint-config-next": "^15.0.3",
+    "postcss": "^8.5.10",
+    "tailwindcss": "^3.4.15",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "overrides": {
+    "postcss": "^8.5.10"
+  }
+}

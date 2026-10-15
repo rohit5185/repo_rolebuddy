@@ -1,0 +1,59 @@
+# Manual staging deploy — never runs automatically.
+# Configure GitHub repository secrets before use:
+#   STAGING_HOST, STAGING_USER, STAGING_SSH_KEY, STAGING_APP_DIR
+# Optional: STAGING_SSH_PORT (default 22)
+#
+# The staging host should have Docker, docker compose, and a compose file
+# that pulls images from GHCR (see docker-compose.ghcr.example.yml).
+
+name: Deploy staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Image tag to deploy (commit SHA, latest, or semver tag)"
+        required: true
+        default: "latest"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to staging over SSH
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate required secrets
+        run: |
+          missing=0
+          for key in STAGING_HOST STAGING_USER STAGING_SSH_KEY STAGING_APP_DIR; do
+            if [ -z "${!key}" ]; then
+              echo "::error::Missing required secret: $key"
+              missing=1
+            fi
+          done
+          exit "$missing"
+        env:
+          STAGING_HOST: ${{ secrets.STAGING_HOST }}
+          STAGING_USER: ${{ secrets.STAGING_USER }}
+          STAGING_SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
+          STAGING_APP_DIR: ${{ secrets.STAGING_APP_DIR }}
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          port: ${{ secrets.STAGING_SSH_PORT || 22 }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            cd "${{ secrets.STAGING_APP_DIR }}"
+            export IMAGE_TAG="${{ github.event.inputs.image_tag }}"
+            export GHCR_OWNER="${{ github.repository_owner }}"
+            docker compose -f docker-compose.ghcr.yml pull
+            docker compose -f docker-compose.ghcr.yml up -d --remove-orphans
+            docker compose -f docker-compose.ghcr.yml ps

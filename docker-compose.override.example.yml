@@ -1,0 +1,39 @@
+# Optional development overrides for docker compose.
+#
+# Compose automatically merges docker-compose.override.yml when present.
+# Copy this file to docker-compose.override.yml and adjust as needed:
+#
+#   cp docker-compose.override.example.yml docker-compose.override.yml
+#
+# Typical development goals:
+# - Mount source for hot reload (run Node on the host instead of rebuilding images), OR
+# - Expose extra ports and relax healthcheck intervals
+# - Point CLIENT_ORIGIN at your LAN IP when testing from a phone
+
+services:
+  backend:
+  #   build:
+  #     target: runner
+  #   volumes:
+  #     - ./backend/src:/app/src:ro
+  #   environment:
+  #     NODE_ENV: development
+  #   command: ["node", "--watch", "src/server.js"]
+    ports:
+      - "5000:5000"
+
+  frontend:
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules
+  #     - /app/.next
+    ports:
+      - "3000:3000"
+
+  mongo:
+    ports:
+      - "27017:27017"
+
+  redis:
+    ports:
+      - "6379:6379"
