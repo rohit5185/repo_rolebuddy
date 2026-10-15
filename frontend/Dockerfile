@@ -2,7 +2,7 @@
 # Multi-stage Next.js production image (standalone server).
 # Build: docker build -t rolebuddy-frontend:staging .
 
-FROM node:20-alpine AS base
+FROM node:25-alpine AS base
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
