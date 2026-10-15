@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RoleBuddy - Experience Level</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&amp;family=Manrope:wght@500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error": "#ffffff",
+                        "on-primary-fixed-variant": "#3017d9",
+                        "inverse-primary": "#c3c0ff",
+                        "surface-container-lowest": "#ffffff",
+                        "outline": "#777588",
+                        "surface-dim": "#dbd8e6",
+                        "on-surface-variant": "#464556",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#3c5900",
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#4f7300",
+                        "surface-tint": "#4b3fef",
+                        "on-tertiary-fixed": "#131f00",
+                        "secondary-container": "#aaa8fd",
+                        "on-primary-fixed": "#0e0069",
+                        "secondary-fixed-dim": "#c3c0ff",
+                        "secondary-fixed": "#e2dfff",
+                        "surface-container-highest": "#e4e1ef",
+                        "tertiary-fixed": "#b7f644",
+                        "on-tertiary-fixed-variant": "#354e00",
+                        "error": "#ba1a1a",
+                        "surface-bright": "#fcf8ff",
+                        "inverse-on-surface": "#f2effd",
+                        "surface-container": "#f0ecfa",
+                        "on-primary-container": "#e8e5ff",
+                        "on-primary": "#ffffff",
+                        "surface-variant": "#e4e1ef",
+                        "secondary": "#5755a4",
+                        "primary-container": "#554bf9",
+                        "surface": "#fcf8ff",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "on-tertiary": "#ffffff",
+                        "outline-variant": "#c7c4d9",
+                        "on-secondary-container": "#3c3986",
+                        "surface-container-low": "#f5f2ff",
+                        "on-background": "#1b1b24",
+                        "on-secondary-fixed": "#12095e",
+                        "primary": "#3b2ae1",
+                        "on-error-container": "#93000a",
+                        "inverse-surface": "#302f3a",
+                        "surface-container-high": "#eae6f4",
+                        "primary-fixed": "#e2dfff",
+                        "on-surface": "#1b1b24",
+                        "on-secondary-fixed-variant": "#3f3d8a",
+                        "on-tertiary-container": "#bcfc4a",
+                        "tertiary-fixed-dim": "#9cd925",
+                        "background": "#fcf8ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .aura-kinetic-bg {
+            background: radial-gradient(circle at 10% 20%, rgba(59, 42, 225, 0.03) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(183, 246, 68, 0.05) 0%, transparent 40%);
+        }
+        .glass-card {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(199, 196, 217, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface aura-kinetic-bg min-h-screen flex flex-col">
+<!-- TopNavBar - Rendered as per JSON Shell Logic -->
+<nav class="fixed top-0 left-0 right-0 z-50 bg-[#fcf8ff]/80 backdrop-blur-xl shadow-[0_20px_40px_rgba(59,42,225,0.06)]">
+<div class="flex justify-between items-center w-full px-8 py-6 max-w-7xl mx-auto">
+<div class="text-2xl font-black tracking-tighter text-[#3b2ae1]">RoleBuddy</div>
+<div class="flex items-center gap-6">
+<button class="font-label text-[11px] font-semibold tracking-wider uppercase text-[#c7c4d9] hover:text-[#3b2ae1] transition-colors duration-300">
+                    Help
+                </button>
+<button class="material-symbols-outlined text-[#3b2ae1] transition-transform scale-95 active:scale-90" data-icon="close">
+                    close
+                </button>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex items-center justify-center px-6 pt-32 pb-20">
+<div class="max-w-4xl w-full flex flex-col items-center">
+<!-- Progress Tracker: Non-Linear Pills per Design System -->
+<div class="w-full max-w-md flex flex-col gap-4 mb-16">
+<div class="flex justify-between items-end mb-2">
+<span class="font-label text-[11px] font-extrabold tracking-widest uppercase text-outline">Onboarding Journey</span>
+<span class="font-label text-sm font-bold text-primary">Step 3 of 11</span>
+</div>
+<div class="flex gap-2 h-1.5 w-full">
+<!-- Completed Steps -->
+<div class="flex-grow rounded-full bg-tertiary-fixed"></div>
+<div class="flex-grow rounded-full bg-tertiary-fixed"></div>
+<!-- Current Step -->
+<div class="flex-grow rounded-full bg-primary shadow-[0_0_12px_rgba(59,42,225,0.3)]"></div>
+<!-- Future Steps -->
+<div class="flex-grow rounded-full bg-surface-variant"></div>
+<div class="flex-grow rounded-full bg-surface-variant"></div>
+<div class="flex-grow rounded-full bg-surface-variant"></div>
+<div class="flex-grow rounded-full bg-surface-variant"></div>
+<div class="flex-grow rounded-full bg-surface-variant"></div>
+<div class="flex-grow rounded-full bg-surface-variant"></div>
+<div class="flex-grow rounded-full bg-surface-variant"></div>
+<div class="flex-grow rounded-full bg-surface-variant"></div>
+</div>
+</div>
+<!-- Content Header -->
+<header class="text-center mb-12 space-y-4">
+<h1 class="font-headline text-4xl md:text-5xl font-black text-on-surface tracking-tight leading-tight">
+                    Define your <span class="text-primary">Experience Level</span>
+</h1>
+<p class="font-body text-lg text-on-surface-variant max-w-xl mx-auto leading-relaxed">
+                    We tailor your RoleBuddy assistance based on where you are in your professional career.
+                </p>
+</header>
+<!-- Selection Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+<!-- Fresher Option -->
+<button class="group relative flex flex-col p-8 text-left glass-card rounded-xl transition-all duration-500 hover:translate-y-[-8px] hover:shadow-[0_32px_64px_rgba(59,42,225,0.08)] outline-none focus:ring-2 focus:ring-primary/20">
+<div class="mb-8 w-14 h-14 rounded-full bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+<span class="material-symbols-outlined text-3xl" data-icon="rocket_launch">rocket_launch</span>
+</div>
+<div>
+<h3 class="font-headline text-xl font-bold text-on-surface mb-2">Fresher</h3>
+<p class="font-label text-[11px] font-bold tracking-widest uppercase text-primary mb-4">0 - 1 Year</p>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed">Starting the journey. Focus on core fundamentals and landing your first big break.</p>
+</div>
+<div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<span class="material-symbols-outlined text-tertiary-fixed text-2xl" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</button>
+<!-- Beginner Option -->
+<button class="group relative flex flex-col p-8 text-left bg-surface-container-lowest border-2 border-primary/40 rounded-xl transition-all duration-500 hover:translate-y-[-8px] shadow-[0_20px_40px_rgba(59,42,225,0.06)] outline-none">
+<div class="mb-8 w-14 h-14 rounded-full bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-3xl" data-icon="psychology">psychology</span>
+</div>
+<div>
+<h3 class="font-headline text-xl font-bold text-on-surface mb-2">Beginner</h3>
+<p class="font-label text-[11px] font-bold tracking-widest uppercase text-primary mb-4">1 - 2 Years</p>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed">Building foundations. Strengthening your expertise and navigating professional growth.</p>
+</div>
+<div class="absolute top-4 right-4 opacity-100">
+<span class="material-symbols-outlined text-primary text-2xl" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<!-- Selected Glow -->
+<div class="absolute inset-0 rounded-xl pointer-events-none ring-4 ring-primary/10 ring-inset"></div>
+</button>
+<!-- Intermediate Option -->
+<button class="group relative flex flex-col p-8 text-left glass-card rounded-xl transition-all duration-500 hover:translate-y-[-8px] hover:shadow-[0_32px_64px_rgba(59,42,225,0.08)] outline-none focus:ring-2 focus:ring-primary/20">
+<div class="mb-8 w-14 h-14 rounded-full bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+<span class="material-symbols-outlined text-3xl" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<div>
+<h3 class="font-headline text-xl font-bold text-on-surface mb-2">Intermediate</h3>
+<p class="font-label text-[11px] font-bold tracking-widest uppercase text-primary mb-4">2+ Years</p>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed">Mastering the craft. Expanding your influence and leading complex initiatives.</p>
+</div>
+<div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<span class="material-symbols-outlined text-tertiary-fixed text-2xl" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</button>
+</div>
+<!-- Visual Decorative Element -->
+<div class="mt-16 w-full max-w-2xl relative">
+<div class="absolute inset-0 bg-gradient-to-r from-primary/5 via-tertiary/5 to-primary/5 blur-3xl -z-10"></div>
+<div class="glass-card p-4 rounded-full flex items-center justify-center gap-8 border border-white/40">
+<img alt="Team collaborating" class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm" data-alt="Modern collaborative workspace with young professionals in soft daylight focus, editorial photography style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqexfO8gmyuu_VJkRdalBBwfOinUE3dQ98sE3TI5p6ByeqDNwAUTERtD720qTm8pimnWyyemGmUMl4XEMrYNtb6vu9fkPPjp71hfhmw47kN02PRMUZyo9CV-aCb8u_stbplvJYpqTmTvv-2oBE3gz_6x6hAIp-1bZNR61hkidv6K4C-Ysl_GaB9zg2tX-hDtumAzxD6qFI0LMl9jj6nziQCfpg1X7Z96eFpufl1YVyRx48HDTOw8S16pEBsN-D_i6zZOBAKowq6QY"/>
+<p class="font-label text-xs font-bold text-on-surface-variant uppercase tracking-widest">Join 50,000+ professionals on their journey</p>
+<div class="flex -space-x-3">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed border-2 border-white flex items-center justify-center">
+<span class="material-symbols-outlined text-xs" data-icon="star" data-weight="fill" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-primary border-2 border-white flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-xs" data-icon="verified" data-weight="fill" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Action -->
+<footer class="mt-16 flex flex-col sm:flex-row items-center gap-6">
+<button class="font-label text-sm font-bold text-on-surface-variant hover:text-primary transition-colors duration-300 px-8 py-4">
+                    Back to previous step
+                </button>
+<button class="group flex items-center gap-3 bg-gradient-to-br from-primary to-primary-container text-white px-10 py-4 rounded-xl font-label font-bold tracking-wide shadow-[0_10px_30px_rgba(59,42,225,0.2)] transition-all duration-300 hover:scale-105 active:scale-95">
+                    Continue with Beginner
+                    <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</footer>
+</div>
+</main>
+<!-- Support Content (Supressed Shell Logic - No BottomNavBar here) -->
+</body></html>

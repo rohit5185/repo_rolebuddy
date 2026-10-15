@@ -1,0 +1,628 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   RoleBuddy Design Tokens
+   ───────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Radius */
+  --radius: 0.75rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 1.75rem;
+
+  /* Colors — Light Mode */
+  --rb-surface: #f9f8fe;
+  --rb-surface-card: #ffffff;
+  --rb-surface-sub: #f4f3fb;
+  --rb-border: rgba(199, 196, 217, 0.55);
+  --rb-border-strong: rgba(199, 196, 217, 0.90);
+  --rb-text: #1b1b24;
+  --rb-text-secondary: #464556;
+  --rb-muted: #777588;
+  --rb-muted-bg: #f4f3fb;
+  --rb-primary: #3b2ae1;
+  --rb-primary-dark: #2d1fc7;
+  --rb-primary-light: #eeecff;
+  --rb-primary-8: rgba(59, 42, 225, 0.08);
+  --rb-accent: #554bf9;
+  --rb-success: #1f6d42;
+  --rb-success-bg: #e6f5ec;
+  --rb-danger: #b54b36;
+  --rb-danger-bg: #fff0ee;
+  --rb-warning: #9a6200;
+  --rb-warning-bg: #fff8e1;
+
+  /* Shadows */
+  --rb-shadow-card: 0 2px 12px rgba(59, 42, 225, 0.06), 0 1px 3px rgba(0,0,0,0.04);
+  --rb-shadow-card-hover: 0 8px 32px rgba(59, 42, 225, 0.10), 0 2px 8px rgba(0,0,0,0.05);
+  --rb-shadow-header: 0 1px 0 rgba(199, 196, 217, 0.55);
+
+  /* Typography */
+  --font-size-xs: 11px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-md: 15px;
+  --font-size-lg: 18px;
+  --font-size-xl: 22px;
+  --font-size-2xl: 28px;
+  --font-size-3xl: 36px;
+
+  /* ── PWA / Safe-area tokens ──────────────────────────────────────────── */
+  --rb-safe-top: env(safe-area-inset-top, 0px);
+  --rb-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --rb-safe-left: env(safe-area-inset-left, 0px);
+  --rb-safe-right: env(safe-area-inset-right, 0px);
+  --rb-bottom-nav-height: 68px;       /* mobile bottom tab bar */
+  --rb-mobile-header-height: 52px;    /* mobile top header */
+  --rb-desktop-header-height: 56px;   /* desktop top header */
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Base Resets
+   ───────────────────────────────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  /* Use dynamic viewport height as baseline — avoids mobile browser toolbar collapsing */
+  height: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--rb-surface);
+  color: var(--rb-text);
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  /* Prevents scroll chaining on iOS */
+  overscroll-behavior-y: none;
+}
+
+/* ── iOS Safari: prevent font inflation on rotate ── */
+@supports (-webkit-touch-callout: none) {
+  body {
+    -webkit-text-size-adjust: none;
+  }
+}
+
+/* ── Standalone PWA mode: respect top safe area ── */
+@media (display-mode: standalone) {
+  body {
+    /* When installed as PWA, add top safe-area padding (iOS Dynamic Island etc.) */
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+}
+
+/* Prevent horizontal overflow everywhere */
+#__next,
+main,
+section,
+article,
+aside {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Tailwind Custom Utilities via CSS variables
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@layer utilities {
+  /* Backgrounds */
+  .bg-rb-surface { background-color: var(--rb-surface); }
+  .bg-rb-card { background-color: var(--rb-surface-card); }
+  .bg-rb-sub { background-color: var(--rb-surface-sub); }
+  .bg-rb-primary { background-color: var(--rb-primary); }
+  .bg-rb-primary-light { background-color: var(--rb-primary-light); }
+  .bg-rb-success { background-color: var(--rb-success); }
+  .bg-rb-success-bg { background-color: var(--rb-success-bg); }
+  .bg-rb-danger { background-color: var(--rb-danger); }
+  .bg-rb-danger-bg { background-color: var(--rb-danger-bg); }
+  .bg-rb-muted-bg { background-color: var(--rb-muted-bg); }
+
+  /* Text */
+  .text-rb-text { color: var(--rb-text); }
+  .text-rb-secondary { color: var(--rb-text-secondary); }
+  .text-rb-muted { color: var(--rb-muted); }
+  .text-rb-primary { color: var(--rb-primary); }
+  .text-rb-success { color: var(--rb-success); }
+  .text-rb-danger { color: var(--rb-danger); }
+
+  /* Borders */
+  .border-rb-border { border-color: var(--rb-border); }
+  .border-rb-border-strong { border-color: var(--rb-border-strong); }
+  .border-rb-primary { border-color: var(--rb-primary); }
+
+  /* Shadows */
+  .shadow-rb-card { box-shadow: var(--rb-shadow-card); }
+  .shadow-rb-card-hover { box-shadow: var(--rb-shadow-card-hover); }
+
+  /* Primary */
+  .text-rb-primary { color: var(--rb-primary); }
+  .bg-rb-primary\/8 { background-color: var(--rb-primary-8); }
+
+  /* Warning */
+  .text-rb-warning { color: var(--rb-warning); }
+  .bg-rb-warning-bg { background-color: var(--rb-warning-bg); }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Component Layer — Shared Cards / Loaders / Inputs
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@layer components {
+  /* Page container — consistent max-width */
+  .page-container {
+    @apply mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8;
+  }
+
+  /* Scrollable area with iOS momentum scrolling */
+  .rb-scroll-area {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  /* Standard card */
+  .rb-card {
+    background: var(--rb-surface-card);
+    border: 1px solid var(--rb-border);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--rb-shadow-card);
+    padding: 1.25rem 1.5rem;
+    overflow: hidden;
+  }
+
+  /* Stat/data cell */
+  .rb-stat-cell {
+    background: var(--rb-surface-sub);
+    border: 1px solid var(--rb-border);
+    border-radius: var(--radius-xl);
+    padding: 1rem;
+  }
+
+  /* Status badge */
+  .rb-status-done {
+    background: var(--rb-success-bg);
+    color: var(--rb-success);
+    border: 1px solid rgba(31, 109, 66, 0.18);
+  }
+  .rb-status-pending {
+    background: var(--rb-surface-sub);
+    color: var(--rb-muted);
+    border: 1px solid var(--rb-border);
+  }
+  .rb-status-not-done {
+    background: var(--rb-danger-bg);
+    color: var(--rb-danger);
+    border: 1px solid rgba(181, 75, 54, 0.18);
+  }
+
+  /* Pill label */
+  .rb-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* Skeleton pulse */
+  .rb-skeleton {
+    background: linear-gradient(90deg, var(--rb-surface-sub) 25%, #ebe9f7 50%, var(--rb-surface-sub) 75%);
+    background-size: 400% 100%;
+    animation: rb-shimmer 1.6s ease-in-out infinite;
+    border-radius: var(--radius-xl);
+  }
+
+  /* Spinner */
+  .rb-spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--rb-primary-light);
+    border-top-color: var(--rb-primary);
+    border-radius: 50%;
+    animation: rb-spin 0.65s linear infinite;
+  }
+
+  /* Page loader overlay */
+  .rb-page-loader {
+    @apply flex min-h-[100dvh] items-center justify-center bg-rb-surface;
+  }
+
+  /* Full-page loader content */
+  .rb-page-loader-inner {
+    @apply flex flex-col items-center gap-4;
+  }
+
+  .rb-button-primary {
+    @apply inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-bold text-white transition;
+    background: var(--rb-primary);
+    border: 1px solid transparent;
+  }
+  .rb-button-primary:hover {
+    background: var(--rb-primary-dark);
+  }
+
+  .rb-button-secondary {
+    @apply inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold transition;
+    color: var(--rb-primary);
+    background: var(--rb-primary-light);
+    border: 1px solid rgba(59, 42, 225, 0.18);
+  }
+  .rb-button-secondary:hover {
+    background: #e5e1ff;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Animations
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@keyframes rb-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes rb-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes rb-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes rb-scale-in {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.rb-animate-in {
+  animation: rb-fade-in 0.2s ease-out forwards;
+}
+
+.rb-scale-in {
+  animation: rb-scale-in 0.18s ease-out forwards;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Scrollbar styling
+   ───────────────────────────────────────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(199, 196, 217, 0.7);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(119, 117, 136, 0.7);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Focus visible — consistent across all inputs and buttons
+   ───────────────────────────────────────────────────────────────────────────── */
+
+:focus-visible {
+  outline: 2px solid var(--rb-primary);
+  outline-offset: 2px;
+}
+
+/* Remove default focus ring for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   RoleBuddy — Theme additions (Dashboard redesign)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* ── 1. Sky-blue gradient background on the app root ── */
+.rb-app-bg {
+  min-height: 100dvh;
+  background: linear-gradient(135deg, #C7E6F9 0%, #8ED1F6 45%, #61C1F5 100%);
+  background-attachment: fixed;
+}
+
+/* Subtle blobs for depth — purely decorative */
+.rb-app-bg::before {
+  content: '';
+  position: fixed;
+  top: -10vh;
+  left: -10vw;
+  width: 55vw;
+  height: 55vw;
+  background: radial-gradient(circle, rgba(255,255,255,0.30) 0%, transparent 65%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.rb-app-bg::after {
+  content: '';
+  position: fixed;
+  bottom: -10vh;
+  right: -8vw;
+  width: 45vw;
+  height: 45vw;
+  background: radial-gradient(circle, rgba(97,193,245,0.35) 0%, transparent 65%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── 2. Page container — sits above the ::before/::after blobs ── */
+.rb-page-container {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 20px 48px;
+}
+
+@media (min-width: 640px) {
+  .rb-page-container {
+    padding: 32px 28px 64px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .rb-page-container {
+    padding: 36px 40px 80px;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   PWA / Mobile Utilities
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* ── Prevent tap highlight on interactive elements ── */
+button,
+a,
+[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Bottom nav: non-selectable (prevents long-press copy on mobile) ── */
+.rb-bottom-nav {
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+/* ── iOS: prevent input zoom (font-size must be ≥ 16px on mobile inputs) ── */
+@media (max-width: 767px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="number"],
+  textarea,
+  select {
+    font-size: max(16px, 1em) !important;
+  }
+}
+
+/* ── Chat: full-height mobile layout ── */
+.rb-chat-mobile-height {
+  /* Total: dvh minus mobile header minus bottom nav minus bottom safe area */
+  height: calc(
+    100dvh
+    - var(--rb-mobile-header-height)
+    - var(--rb-bottom-nav-height)
+    - env(safe-area-inset-bottom, 0px)
+    - env(safe-area-inset-top, 0px)
+  );
+  min-height: 400px;
+}
+
+@media (min-width: 768px) {
+  .rb-chat-mobile-height {
+    /* On desktop, use the original formula */
+    height: calc(100dvh - var(--rb-desktop-header-height) - 2rem);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Dot-Pulse Loader  (replaces circular spinner on auth forms)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@keyframes rb-dot-pulse {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40%           { transform: scale(1.0); opacity: 1; }
+}
+
+.rb-dot-pulse {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.rb-dot-pulse span {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: rb-dot-pulse 1.2s ease-in-out infinite;
+}
+
+.rb-dot-pulse span:nth-child(1) { animation-delay: 0s; }
+.rb-dot-pulse span:nth-child(2) { animation-delay: 0.2s; }
+.rb-dot-pulse span:nth-child(3) { animation-delay: 0.4s; }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Floating Bottom Nav
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.rb-floating-nav {
+  position: fixed;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: min(320px, calc(100vw - 32px));
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(199, 196, 217, 0.6);
+  box-shadow:
+    0 8px 32px rgba(59, 42, 225, 0.18),
+    0 2px 8px rgba(0,0,0,0.06);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.rb-floating-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  position: relative;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rb-floating-nav-item.active {
+  background: rgba(59, 42, 225, 0.10);
+}
+
+.rb-floating-nav-item .rb-nav-icon {
+  width: 20px;
+  height: 20px;
+  transition: color 0.15s, transform 0.15s;
+}
+
+.rb-floating-nav-item.active .rb-nav-icon {
+  color: #3b2ae1;
+  transform: scale(1.08);
+}
+
+.rb-floating-nav-item:not(.active) .rb-nav-icon {
+  color: #a29db8;
+}
+
+/* Nav item label */
+.rb-nav-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1;
+  margin-top: 2px;
+  transition: color 0.15s;
+}
+
+.rb-floating-nav-item.active .rb-nav-label {
+  color: #3b2ae1;
+}
+
+.rb-floating-nav-item:not(.active) .rb-nav-label {
+  color: #a29db8;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Drawer — bottom safe-area padding so content isn't hidden by floating nav
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.rb-drawer-bottom-pb {
+  padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Fix: prevent rb-app-bg blue from showing below chat on mobile */
+.rb-chat-bg-fix {
+  background: white;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   OTP Input — 6-digit boxes
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.rb-otp-input {
+  width: 44px;
+  height: 54px;
+  border-radius: 12px;
+  border: 2px solid rgba(199, 196, 217, 0.7);
+  background: white;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 900;
+  color: #1b1b24;
+  caret-color: #3b2ae1;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rb-otp-input:focus {
+  border-color: #3b2ae1;
+  box-shadow: 0 0 0 3px rgba(59, 42, 225, 0.12);
+}
+
+.rb-otp-input.filled {
+  border-color: #3b2ae1;
+  background: #eeecff;
+}
+
+@media (max-width: 400px) {
+  .rb-otp-input {
+    width: 38px;
+    height: 48px;
+    font-size: 20px;
+  }
+}

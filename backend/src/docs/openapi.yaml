@@ -1,0 +1,888 @@
+openapi: "3.0.3"
+info:
+  title: RoleBuddy API
+  version: "1.0.0"
+  description: >
+    Structured peer accountability platform for job preparation.
+    Users find peers preparing for the SAME role and hold each other accountable.
+
+servers:
+  - url: http://localhost:5000
+    description: Local development
+
+tags:
+  - name: Health
+  - name: Auth
+  - name: User
+  - name: Match
+  - name: Discovery
+  - name: Connection
+  - name: Chat
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: accessToken
+
+  schemas:
+    UserProfile:
+      type: object
+      properties:
+        id: { type: string }
+        email: { type: string }
+        createdAt: { type: string, format: date-time }
+        domain: { type: string, nullable: true, enum: [tech, non-tech] }
+        domainArea: { type: string, default: Unassigned }
+        primaryArea: { type: string, nullable: true }
+        area: { type: string, nullable: true }
+        specialization: { type: string, nullable: true }
+        role: { type: string, nullable: true }
+        experience: { type: string, nullable: true }
+        skills: { type: array, items: { type: string } }
+        intent: { type: string, nullable: true }
+        goal: { type: string, nullable: true }
+        dailyGoal: { type: integer, nullable: true, enum: [1, 2, 3] }
+        availabilityFrequency: { type: string, nullable: true }
+        availabilityTime: { type: string, nullable: true, enum: [morning, afternoon, night] }
+        availability: { type: string, nullable: true }
+        preferences: { type: array, items: { type: string } }
+        status: { type: string, enum: [waiting, matched] }
+        matchedUserId: { type: string, nullable: true }
+        onboardingCompleted: { type: boolean }
+
+    UserSummary:
+      type: object
+      properties:
+        id: { type: string }
+        email: { type: string }
+        role: { type: string, nullable: true }
+        experience: { type: string, nullable: true }
+
+    Message:
+      type: object
+      properties:
+        id: { type: string }
+        conversationId: { type: string }
+        senderId: { type: string }
+        sender: { $ref: "#/components/schemas/UserSummary" }
+        type:
+          type: string
+          enum: [text, checkin, system, reminder, alert]
+        content: { type: string }
+        metadata: { type: object }
+        seenBy:
+          type: array
+          items: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    Conversation:
+      type: object
+      properties:
+        id: { type: string }
+        participants:
+          type: array
+          items: { $ref: "#/components/schemas/UserSummary" }
+        partner: { $ref: "#/components/schemas/UserSummary" }
+        lastMessage:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/Message"
+        isActive: { type: boolean }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    RoleAggregate:
+      type: object
+      properties:
+        role: { type: string }
+        totalUsers: { type: integer }
+        activeUsers: { type: integer }
+        waitingUsers: { type: integer }
+
+    Error:
+      type: object
+      properties:
+        message: { type: string }
+        data: { type: "null" }
+
+paths:
+
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      responses:
+        "200":
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      status: { type: string, example: ok }
+                      service: { type: string, example: rolebuddy-backend }
+                      timestamp: { type: string, format: date-time }
+
+  /api/auth/signup:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
+      responses:
+        "201":
+          description: Signup successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      user: { $ref: "#/components/schemas/UserProfile" }
+                      token: { type: string }
+        "400": { description: Validation error, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "409": { description: Email already registered, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Authenticate user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      user: { $ref: "#/components/schemas/UserProfile" }
+                      token: { type: string }
+        "400": { description: Validation error, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "401": { description: Invalid credentials, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  /api/user/profile:
+    get:
+      tags: [User]
+      summary: Get current user profile
+      security: [{ BearerAuth: [] }, { CookieAuth: [] }]
+      responses:
+        "200":
+          description: Profile fetched
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      user: { $ref: "#/components/schemas/UserProfile" }
+        "401": { description: Unauthorized, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  /api/user/onboarding:
+    put:
+      tags: [User]
+      summary: Complete or update onboarding
+      security: [{ BearerAuth: [] }, { CookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Structured onboarding payload
+              required: [role, experience, dailyGoal]
+              properties:
+                domain: { type: string, enum: [tech, non-tech] }
+                primaryArea: { type: string, description: Required if domain=tech }
+                area: { type: string, description: Required if domain=non-tech }
+                specialization: { type: string }
+                role: { type: string, maxLength: 80 }
+                experience:
+                  type: string
+                  enum: ["student / fresher", fresher, beginner, junior, mid-level, senior, manager, "lead / head", experienced]
+                skills: { type: array, items: { type: string }, maxItems: 20 }
+                intent: { type: string }
+                goal: { type: string }
+                dailyGoal: { type: integer, enum: [1, 2, 3] }
+                availabilityFrequency: { type: string }
+                availabilityTime: { type: string, enum: [morning, afternoon, night] }
+                availability: { type: string, enum: [morning, afternoon, night], description: Legacy alias for availabilityTime }
+                preferences: { type: array, items: { type: string } }
+      responses:
+        "200":
+          description: Onboarding completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      user: { $ref: "#/components/schemas/UserProfile" }
+        "400": { description: Validation error, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "401": { description: Unauthorized, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "404": { description: User not found, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  /api/user/dashboard:
+    get:
+      tags: [User]
+      summary: Get dashboard snapshot (also updates lastActiveAt)
+      security: [{ BearerAuth: [] }, { CookieAuth: [] }]
+      responses:
+        "200":
+          description: Dashboard fetched
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        type: object
+                        properties:
+                          role: { type: string, nullable: true }
+                          experience: { type: string, nullable: true }
+                          dailyGoal: { type: integer, nullable: true }
+                          streakCount: { type: integer }
+                          lastCheckInDate: { type: string, format: date-time, nullable: true }
+                          lastActiveAt: { type: string, format: date-time, nullable: true }
+                          onboardingCompleted: { type: boolean }
+                      todayStatus:
+                        type: string
+                        enum: [pending, done, not_done]
+                      partner:
+                        nullable: true
+                        type: object
+                        properties:
+                          partnerId: { type: string }
+                          partnerRole: { type: string, nullable: true }
+                          partnerExperience: { type: string, nullable: true }
+                          partnerStreak: { type: integer }
+                          partnerLastCheckIn: { type: string, format: date-time, nullable: true }
+                          partnerLastActive: { type: string, format: date-time, nullable: true }
+                      matching:
+                        type: object
+                        properties:
+                          status: { type: string, enum: [waiting, matched] }
+        "401": { description: Unauthorized, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "404": { description: User not found, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  /api/match/find:
+    post:
+      tags: [Match]
+      summary: Find or retrieve a match (also available at /api/matches/find)
+      description: >
+        Returns matched partner info wrapped in standard { message, data } format.
+        Requires onboardingCompleted=true.
+      security: [{ BearerAuth: [] }, { CookieAuth: [] }]
+      responses:
+        "200":
+          description: Match result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      matched: { type: boolean }
+                      matchScore: { type: integer, description: "100=role+exp, 90=role, 80=spec+exp, 70=spec, 60=domain+exp, 50=domain, 40=fallback" }
+                      partner:
+                        nullable: true
+                        type: object
+                        properties:
+                          role: { type: string, nullable: true }
+                          specialization: { type: string, nullable: true }
+                          experience: { type: string, nullable: true }
+                          domainArea: { type: string, nullable: true }
+        "400": { description: Onboarding not completed, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "401": { description: Unauthorized, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "409": { description: No active candidates, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  /api/discovery/roles:
+    get:
+      tags: [Discovery]
+      summary: Search roles with aggregate counts
+      security: [{ BearerAuth: [] }, { CookieAuth: [] }]
+      parameters:
+        - name: q
+          in: query
+          required: false
+          schema: { type: string, maxLength: 50 }
+          description: Role search query
+      responses:
+        "200":
+          description: Roles fetched
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/RoleAggregate" }
+        "400": { description: Invalid query, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "401": { description: Unauthorized, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  /api/discovery/role/{roleName}:
+    get:
+      tags: [Discovery]
+      summary: Get sample users for a specific role
+      security: [{ BearerAuth: [] }, { CookieAuth: [] }]
+      parameters:
+        - name: roleName
+          in: path
+          required: true
+          schema: { type: string, maxLength: 80 }
+      responses:
+        "200":
+          description: Role detail fetched
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      role: { type: string }
+                      users:
+                        type: array
+                        maxItems: 10
+                        items:
+                          type: object
+                          properties:
+                            experience: { type: string }
+                            dailyGoal: { type: integer }
+                            status: { type: string, enum: [waiting, matched] }
+        "400": { description: Invalid role name, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "401": { description: Unauthorized, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  /api/connection/display-name:
+    post:
+      tags: [Connection]
+      summary: Generate unique anonymous display name (idempotent)
+      security: [{ BearerAuth: [] }, { CookieAuth: [] }]
+      responses:
+        "200":
+          description: Display name generated or retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      displayName: { type: string, example: Frontend42 }
+        "401": { description: Unauthorized, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "404": { description: User not found, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  /api/connection/request:
+    post:
+      tags: [Connection]
+      summary: Send a connection request
+      security: [{ BearerAuth: [] }, { CookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [toUserId]
+              properties:
+                toUserId: { type: string }
+      responses:
+        "201":
+          description: New request created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      request:
+                        type: object
+                        properties:
+                          from: { type: string }
+                          to: { type: string }
+                          status: { type: string, enum: [pending] }
+        "200":
+          description: Idempotent — duplicate pending request already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      request:
+                        type: object
+                        properties:
+                          from: { type: string }
+                          to: { type: string }
+                          status: { type: string, enum: [pending] }
+        "400": { description: Validation error, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "404": { description: User not found, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  /api/connection/request/accept:
+    post:
+      tags: [Connection]
+      summary: Accept a connection request
+      security: [{ BearerAuth: [] }, { CookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fromUserId]
+              properties:
+                fromUserId: { type: string }
+      responses:
+        "200":
+          description: Request accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      connection:
+                        type: object
+                        properties:
+                          userId: { type: string }
+                          displayName: { type: string }
+                          role: { type: string }
+        "404": { description: User or request not found, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  /api/connection/request/reject:
+    post:
+      tags: [Connection]
+      summary: Reject a connection request
+      security: [{ BearerAuth: [] }, { CookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fromUserId]
+              properties:
+                fromUserId: { type: string }
+      responses:
+        "200":
+          description: Request rejected
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data: { type: "null" }
+        "404": { description: User or request not found, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  /api/connection/requests:
+    get:
+      tags: [Connection]
+      summary: Get pending connection requests
+      security: [{ BearerAuth: [] }, { CookieAuth: [] }]
+      responses:
+        "200":
+          description: Pending requests
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        from:
+                          type: object
+                          properties:
+                            userId: { type: string }
+                            displayName: { type: string }
+                            role: { type: string }
+                            specialization: { type: string }
+                            experience: { type: string }
+                            domainArea: { type: string }
+                        to: { type: string }
+                        status: { type: string, enum: [pending] }
+                        createdAt: { type: string, format: date-time }
+
+  /api/connection/list:
+    get:
+      tags: [Connection]
+      summary: Get all connections
+      security: [{ BearerAuth: [] }, { CookieAuth: [] }]
+      responses:
+        "200":
+          description: Connections list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        userId:
+                          type: object
+                          properties:
+                            _id: { type: string }
+                            displayName: { type: string }
+                            role: { type: string }
+                            specialization: { type: string }
+                            experience: { type: string }
+                            domainArea: { type: string }
+                            lastActiveAt: { type: string, format: date-time }
+
+  /api/connection/suggestions:
+    get:
+      tags: [Connection]
+      summary: Get profile suggestions ranked by match score
+      security: [{ BearerAuth: [] }, { CookieAuth: [] }]
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, default: 10 }
+      responses:
+        "200":
+          description: Suggestions fetched
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id: { type: string }
+                        displayName: { type: string }
+                        role: { type: string }
+                        specialization: { type: string }
+                        domainArea: { type: string }
+                        experience: { type: string }
+                        dailyGoal: { type: integer }
+                        availability: { type: string }
+                        lastActiveAt: { type: string, format: date-time }
+                        matchScore: { type: integer }
+        "400": { description: Onboarding not completed, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  /api/connection/search:
+    get:
+      tags: [Connection]
+      summary: Search profiles by role, specialization, domainArea, or displayName
+      security: [{ BearerAuth: [] }, { CookieAuth: [] }]
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string }
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, default: 20 }
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id: { type: string }
+                        displayName: { type: string }
+                        role: { type: string }
+                        specialization: { type: string }
+                        domainArea: { type: string }
+                        experience: { type: string }
+                        dailyGoal: { type: integer }
+                        availability: { type: string }
+                        lastActiveAt: { type: string, format: date-time }
+        "400": { description: Empty query, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  /api/connection/profile/{userId}:
+    get:
+      tags: [Connection]
+      summary: Get public profile of a user
+      security: [{ BearerAuth: [] }, { CookieAuth: [] }]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Profile fetched
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      _id: { type: string }
+                      displayName: { type: string }
+                      role: { type: string }
+                      specialization: { type: string }
+                      domainArea: { type: string }
+                      experience: { type: string }
+                      dailyGoal: { type: integer }
+                      availability: { type: string }
+                      lastActiveAt: { type: string, format: date-time }
+        "404": { description: User not found, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  /api/conversations:
+    get:
+      tags: [Chat]
+      summary: List all active conversations for current user
+      security: [{ BearerAuth: [] }, { CookieAuth: [] }]
+      responses:
+        "200":
+          description: Conversations fetched
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      conversations:
+                        type: array
+                        items: { $ref: "#/components/schemas/Conversation" }
+
+    post:
+      tags: [Chat]
+      summary: Create or retrieve conversation with a matched/connected partner (idempotent)
+      security: [{ BearerAuth: [] }, { CookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [partnerId]
+              properties:
+                partnerId: { type: string }
+      responses:
+        "201":
+          description: Conversation created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      conversation: { $ref: "#/components/schemas/Conversation" }
+        "200":
+          description: Conversation already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      conversation: { $ref: "#/components/schemas/Conversation" }
+        "400": { description: No partner found or invalid partnerId, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "403": { description: Not matched or connected with partner, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  /api/messages/{conversationId}:
+    get:
+      tags: [Chat]
+      summary: Get paginated messages for a conversation
+      security: [{ BearerAuth: [] }, { CookieAuth: [] }]
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: page
+          in: query
+          required: false
+          schema: { type: integer, default: 1 }
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, default: 20, maximum: 50 }
+      responses:
+        "200":
+          description: Messages fetched
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      messages:
+                        type: array
+                        items: { $ref: "#/components/schemas/Message" }
+                      pagination:
+                        type: object
+                        properties:
+                          page: { type: integer }
+                          limit: { type: integer }
+                          total: { type: integer }
+                          hasNextPage: { type: boolean }
+        "403": { description: No access, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "404": { description: Conversation not found, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  /api/messages:
+    post:
+      tags: [Chat]
+      summary: Send a message
+      security: [{ BearerAuth: [] }, { CookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [conversationId]
+              properties:
+                conversationId: { type: string }
+                type:
+                  type: string
+                  enum: [text, checkin, system, reminder, alert]
+                  default: text
+                content: { type: string, maxLength: 2000 }
+                metadata: { type: object }
+      responses:
+        "201":
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      message: { $ref: "#/components/schemas/Message" }
+                      alert:
+                        nullable: true
+                        allOf: [{ $ref: "#/components/schemas/Message" }]
+                      conversation: { $ref: "#/components/schemas/Conversation" }
+        "400": { description: Validation error, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "403": { description: No access, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  /api/messages/{messageId}/seen:
+    post:
+      tags: [Chat]
+      summary: Mark a message as seen
+      security: [{ BearerAuth: [] }, { CookieAuth: [] }]
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                messageId: { type: string }
+      responses:
+        "200":
+          description: Message marked seen
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      message: { $ref: "#/components/schemas/Message" }
+        "403": { description: No access, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "404": { description: Message not found, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }

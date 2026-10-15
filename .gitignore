@@ -1,0 +1,109 @@
+# -----------------------------
+# Dev-only scratch & internal docs
+# -----------------------------
+# These are local development notes, test files, and internal docs.
+# They must never appear on GitHub.
+bash.exe.stackdump
+*.stackdump
+dlt.md
+proper_vibe_coding.md
+TESTING.md
+PRODUCTION_READINESS_AUDIT.md
+"done till now"
+done till now
+to-do.txt
+zfirst.txt
+pdf_output.txt
+non-tech-flow-for-onboarding.txt
+tech-flow-for-onboarding.txt
+index.html
+landing_test.html
+rb_mobileTesting1.pdf
+*.pdf
+RoleBuddy- Research Phase Documentation.md
+RoleBuddy– Research Phase Documentation.pdf
+Extra_References/
+Extra References/
+
+# Editor workspace files
+.continue/
+.vscode/
+
+# Stray root-level package-lock (not part of any workspace)
+/package-lock.json
+
+# -----------------------------
+# Dependencies
+# -----------------------------
+node_modules/
+**/node_modules/
+
+# -----------------------------
+# Environment and secrets
+# -----------------------------
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# -----------------------------
+# Build and runtime output
+# -----------------------------
+dist/
+build/
+out/
+coverage/
+.nyc_output/
+.tmp/
+tmp/
+temp/
+
+# -----------------------------
+# Next.js
+# -----------------------------
+.next/
+frontend/.next/
+
+# -----------------------------
+# Logs and process artifacts
+# -----------------------------
+*.log
+*.out
+*.err
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# -----------------------------
+# Testing artifacts
+# -----------------------------
+playwright-report/
+test-results/
+
+# -----------------------------
+# Tooling and editor
+# -----------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# -----------------------------
+# OS files
+# -----------------------------
+.DS_Store
+Thumbs.db
+
+# -----------------------------
+# Package manager local stores
+# -----------------------------
+.pnpm-store/
+.npm/
+
+# -----------------------------
+# Optional local app data
+# -----------------------------
+*.pid
+*.seed
+*.pid.lock

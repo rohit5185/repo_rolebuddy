@@ -1,0 +1,135 @@
+# Example staging/production compose file that pulls pre-built images from GHCR.
+# Copy to your server as docker-compose.ghcr.yml and set secrets in .env.
+#
+#   cp docker-compose.ghcr.example.yml docker-compose.ghcr.yml
+#   cp .env.example .env
+#   # edit .env — JWT_SECRET, CLIENT_ORIGIN, NEXT_PUBLIC_API_BASE_URL, etc.
+#
+# Login once on the server (read:packages scope for private repos):
+#   echo $GITHUB_PAT | docker login ghcr.io -u YOUR_GITHUB_USER --password-stdin
+#
+# Deploy (or use the "Deploy staging" GitHub Actions workflow):
+#   export IMAGE_TAG=latest
+#   export GHCR_OWNER=your-github-username
+#   docker compose -f docker-compose.ghcr.yml pull
+#   docker compose -f docker-compose.ghcr.yml up -d
+
+name: rolebuddy
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: |
+        mongosh --port 27017 --quiet --eval "
+        try {
+          if (rs.status().ok) {
+            if (db.hello().isWritablePrimary) {
+              quit(0);
+            }
+          }
+        } catch (err) {
+          try {
+            rs.initiate({
+              _id: 'rs0',
+              members: [{ _id: 0, host: 'mongo:27017' }]
+            });
+          } catch (initErr) {}
+        }
+        quit(1);
+        "
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    networks:
+      - rolebuddy
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rolebuddy
+
+  backend:
+    image: ghcr.io/${GHCR_OWNER:-your-github-user}/rolebuddy-backend:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MONGO_URI: mongodb://mongo:27017/rolebuddy?replicaSet=rs0
+      REDIS_URL: redis://redis:6379
+      CLIENT_ORIGIN: ${CLIENT_ORIGIN:-http://localhost:3000}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
+    ports:
+      - "${BACKEND_HOST_PORT:-5000}:5000"
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:5000/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    networks:
+      - rolebuddy
+
+  frontend:
+    image: ghcr.io/${GHCR_OWNER:-your-github-user}/rolebuddy-frontend:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+    ports:
+      - "${FRONTEND_HOST_PORT:-3000}:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+    networks:
+      - rolebuddy
+
+networks:
+  rolebuddy:
+    driver: bridge
+
+volumes:
+  mongo_data:
+  redis_data:

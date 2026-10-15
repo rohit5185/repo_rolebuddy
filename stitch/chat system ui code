@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RoleBuddy | Editorial Chat</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&amp;family=Manrope:wght@500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#f2effd",
+                        "on-primary-fixed-variant": "#3017d9",
+                        "on-primary-fixed": "#0e0069",
+                        "outline-variant": "#c7c4d9",
+                        "tertiary-container": "#4f7300",
+                        "primary": "#3b2ae1",
+                        "secondary-container": "#aaa8fd",
+                        "error": "#ba1a1a",
+                        "outline": "#777588",
+                        "surface-tint": "#4b3fef",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#354e00",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed": "#12095e",
+                        "surface-container-high": "#eae6f4",
+                        "primary-fixed": "#e2dfff",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "tertiary-fixed-dim": "#9cd925",
+                        "surface": "#fcf8ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed": "#131f00",
+                        "on-tertiary-container": "#bcfc4a",
+                        "on-secondary-fixed-variant": "#3f3d8a",
+                        "tertiary": "#3c5900",
+                        "on-primary-container": "#e8e5ff",
+                        "on-background": "#1b1b24",
+                        "secondary-fixed": "#e2dfff",
+                        "surface-container-highest": "#e4e1ef",
+                        "primary-container": "#554bf9",
+                        "tertiary-fixed": "#b7f644",
+                        "on-secondary-container": "#3c3986",
+                        "surface-container": "#f0ecfa",
+                        "inverse-primary": "#c3c0ff",
+                        "background": "#fcf8ff",
+                        "on-error-container": "#93000a",
+                        "secondary": "#5755a4",
+                        "on-surface-variant": "#464556",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#dbd8e6",
+                        "surface-variant": "#e4e1ef",
+                        "surface-container-low": "#f5f2ff",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#c3c0ff",
+                        "on-surface": "#1b1b24",
+                        "inverse-surface": "#302f3a",
+                        "surface-bright": "#fcf8ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {},
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .aura-kinetic-received {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 20px rgba(59, 42, 225, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .aura-kinetic-sent {
+            background: rgba(179, 242, 64, 0.9);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 24px rgba(179, 242, 64, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e4e1ef;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface overflow-hidden h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center w-full px-6 py-4 max-w-full mx-auto docked full-width top-0 bg-[#554bf9]/60 backdrop-blur-[20px] dark:bg-indigo-900/60 shadow-[0_20px_40px_rgba(59,42,225,0.06)] z-50">
+<div class="flex items-center gap-3">
+<img class="h-8 w-auto" data-alt="Minimalist geometric logo for RoleBuddy, clean vector style with deep violet and lime green accents" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQznkpqvRQvbmsgbeGvZfoO9B80C_alMdCbjihteRQtBkyBaPMdgBlOq4bkzm3Pfxq5ypgk7wHz2QUP2xFR1jBQ7og5Mg4p7rvUYYygWd2sfdDXXl7Eh9SSxDTcKCKqqxsIbD5ksn8fsMBWv8shBq-lMUE7HsP2FKfermvdzFi1jl2KhkiJYUWVSTzVh-Fsg58JpjwKhZF3Vmi3LVv_RhBopeC7CeN_finnlkjEopbIcA5j7lJWXOO8un9KPRcyS-tXZYZDutkluo"/>
+<span class="text-xl font-black text-slate-900 dark:text-slate-50 font-headline">Atelier</span>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="font-label text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-[#3b2ae1] transition-all" href="#">Habits</a>
+<a class="font-label text-[10px] font-bold uppercase tracking-widest text-[#3b2ae1] dark:text-indigo-300" href="#">Chat</a>
+<a class="font-label text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-[#3b2ae1] transition-all" href="#">Growth</a>
+</nav>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full hover:bg-slate-100/50 dark:hover:bg-indigo-800/30 transition-colors active:scale-95 duration-150 ease-in-out">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400">settings</span>
+</button>
+<button class="p-2 rounded-full hover:bg-slate-100/50 dark:hover:bg-indigo-800/30 transition-colors active:scale-95 duration-150 ease-in-out">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400">notifications</span>
+</button>
+</div>
+</header>
+<!-- Main Content Container -->
+<main class="flex-1 flex overflow-hidden max-w-[1400px] mx-auto w-full pt-4 px-4 pb-4 gap-6">
+<!-- Left Sidebar: Recent Chats -->
+<aside class="w-80 hidden lg:flex flex-col bg-surface-container-low rounded-xl overflow-hidden">
+<div class="p-6">
+<h2 class="font-headline text-xl font-bold tracking-tight text-on-surface mb-2">Conversations</h2>
+<p class="font-label text-[10px] font-bold uppercase tracking-widest text-outline">Recent Buddies</p>
+</div>
+<div class="flex-1 overflow-y-auto px-2 pb-6">
+<!-- Chat Partner Item: Active -->
+<div class="flex items-center gap-4 p-4 mb-2 bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(59,42,225,0.02)] border-l-4 border-tertiary-fixed">
+<div class="relative">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="Portrait of Elena Rivera, a professional woman with a kind expression and warm lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJaHJCwQSNGTnZd_xczCcR8LsGJkkQEiWn_qsoM31CPd6D8Pk5YlqzfSUWpV86oZWjK1QTOXKXR8nxd24ECbUhihQDlU0wncKEk3ErbLSaVI5w8N49dkGV4qpkno7u_kMeefl4PLbsfVo_pZh3HRC5p1eR-8tOspyQqHf_1-PtRznLq5GRuKhy0BnSzK2Hn_o4yIFF0K-Wt3iXCV36ousvuD4xmS-nsRMhq0XaxhZT4bOwF69Wm81w9RVYlEuwYKNJXngKDVbXdzY"/>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-tertiary-fixed rounded-full border-2 border-surface-container-lowest"></div>
+</div>
+<div class="flex-1 overflow-hidden">
+<div class="flex justify-between items-center">
+<h3 class="font-headline text-sm font-bold truncate">Elena Rivera</h3>
+<span class="font-label text-[10px] font-bold text-tertiary flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+                                12
+                            </span>
+</div>
+<p class="text-xs text-on-surface-variant truncate">That routine looks solid, we should...</p>
+</div>
+</div>
+<!-- Chat Partner Item -->
+<div class="flex items-center gap-4 p-4 mb-2 hover:bg-surface-container-highest transition-all rounded-xl cursor-pointer">
+<div class="relative">
+<img class="w-12 h-12 rounded-full object-cover grayscale opacity-80" data-alt="Portrait of a young man with a professional look in a bright studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgksdQ2XMBfM6gwyE3JLxaPnVxGmFlqoziHEzXBswb0cjT6OVxKeqI0cGGzIY5kT3-pdDXaS4Rc_ns707vzqlL3b3XhJWNC4YR2qskdeMwwJum6dHGvll5QZPc1rKufgcaaCaKkQ1Kh3ksG3TzCh4SiH-XF5CDY44g8urafxfjj4LBhWIGsah9LefnPVVJMA7xOOItPCXmrR1moC4I7exQ5oQo61gtSppdW7nleLuf9rC0AezgSDRkZ4z97a7IPilg_VBoCCWGdYU"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<div class="flex justify-between items-center">
+<h3 class="font-headline text-sm font-bold text-on-surface-variant truncate">Marcus Chen</h3>
+<span class="font-label text-[10px] font-bold text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">local_fire_department</span>
+                                4
+                            </span>
+</div>
+<p class="text-xs text-outline truncate">Ready for the 6AM session tomorrow?</p>
+</div>
+</div>
+<!-- Chat Partner Item -->
+<div class="flex items-center gap-4 p-4 mb-2 hover:bg-surface-container-highest transition-all rounded-xl cursor-pointer">
+<div class="relative">
+<img class="w-12 h-12 rounded-full object-cover grayscale opacity-80" data-alt="Close-up of a smiling person with colorful studio lighting background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTj6Y0qopWTm_MI1U_Ya-vbmc5KEXApQ-5dnr3H0qSRybbW9Nto_9HKCoBynLuW5gpvHtaYGCAOsh_HYoi9_Og6MsgVfKZnOBZvZn5fDZ_SJ7nBR_HAQex3DST0dE9wABCSo2FRUGU24HPvyXywtBAATnzmJiV43kta2GqC4aQCbbS6BvhHyjT7mPPpx9xCaA-qI7x_yhpGh1fAetdV36w3cI0sXUBSSxCn3TZurZowNx8BvPWHW7Xi3d7ZeoYa83vMMzA8LerAVw"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<div class="flex justify-between items-center">
+<h3 class="font-headline text-sm font-bold text-on-surface-variant truncate">Sarah Jenkins</h3>
+<span class="font-label text-[10px] font-bold text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">local_fire_department</span>
+                                28
+                            </span>
+</div>
+<p class="text-xs text-outline truncate">Shared a new goal with you.</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Right Side: Message Thread -->
+<section class="flex-1 flex flex-col bg-surface-container-low rounded-xl overflow-hidden relative shadow-[0_20px_40px_rgba(59,42,225,0.03)]">
+<!-- Chat Header -->
+<div class="flex justify-between items-center px-8 py-6 bg-surface-container-low/80 backdrop-blur-md z-10">
+<div class="flex items-center gap-4">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Portrait of Elena Rivera" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlZ9LGayfuC4vL_PHRoL8Iwsjx1mWHjTTPHCoEyw8kTb_-pwTChZbEh2nrA9N1bU8iS2l3_k3fDLjxOXW9HTCziiccR7isi5MZ83et93iJuAzwQ3181GgqbPjlOmhfy4KvCWT4mIuL7B6DmXAfzoXJrlDZZhxBRr5JXXYa4YpklYDKlZizo79CAdTQq_DfZtRilgPSxp9G2qvsuiN-CzFevqwG2a439mld27EeSpvMbzmCQq_sV1QG6OWOWFOjuO8aNbXwLJ_WQoU"/>
+<div>
+<h2 class="font-headline text-lg font-bold text-on-surface leading-none">Elena Rivera</h2>
+<div class="flex items-center gap-1 mt-1">
+<span class="w-2 h-2 bg-tertiary-fixed rounded-full"></span>
+<span class="font-label text-[10px] font-bold uppercase tracking-widest text-tertiary">Active Now</span>
+</div>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="p-2 text-outline-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">call</span>
+</button>
+<button class="p-2 text-outline-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">videocam</span>
+</button>
+<button class="p-2 text-outline-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Messages Area -->
+<div class="flex-1 overflow-y-auto px-8 py-6 flex flex-col gap-6">
+<!-- Date Marker -->
+<div class="flex justify-center my-4">
+<span class="px-3 py-1 rounded-full bg-surface-container-highest text-[10px] font-label font-bold uppercase tracking-widest text-outline">Today</span>
+</div>
+<!-- Received Message -->
+<div class="flex items-end gap-3 max-w-[80%]">
+<div class="aura-kinetic-received p-4 rounded-2xl rounded-bl-none text-sm text-on-surface leading-relaxed">
+                        Hey there! I just finished the morning meditation session we talked about. It really helped set the tone for the day. Did you manage to start yours?
+                    </div>
+<span class="font-label text-[9px] font-bold uppercase text-outline pb-1">09:12 AM</span>
+</div>
+<!-- Sent Message -->
+<div class="flex items-end gap-3 max-w-[80%] ml-auto flex-row-reverse">
+<div class="aura-kinetic-sent p-4 rounded-2xl rounded-br-none text-sm text-[#1b1b24] font-medium leading-relaxed">
+                        That's awesome! I'm about 10 minutes away from finishing my deep-work block. I'll jump into meditation right after. The 12-day streak is looking good!
+                    </div>
+<span class="font-label text-[9px] font-bold uppercase text-outline pb-1">09:15 AM</span>
+</div>
+<!-- Received Message with Image / Evidence -->
+<div class="flex items-end gap-3 max-w-[80%]">
+<div class="flex flex-col gap-2">
+<div class="aura-kinetic-received p-1 rounded-2xl rounded-bl-none overflow-hidden">
+<img class="w-full h-48 object-cover rounded-xl" data-alt="Peaceful minimalist meditation space with a yoga mat and soft sunlight through window" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSeqx8EV-MPqDUfG6MGvA1P_uHVgHxbUp-Y8ZM6NsW1cVQIfQFbXQubQlaGuJiahmr-om0L-vAoSGYA424MM4oDz-xP2i1j8Ah2gUBoeeyBQjiuw69EAQmAbzmLT8NvXCOijaxmT9LpC8oBAMXYNoukBrwoksiGhJnkxIyrGpks6FVtsjs-f7koMZOR6DGx47SjDlkkPClfy_BEvYkywdRi_cyc1FjbB2Yo0s6uVyPYaUJWoArKfA7F5Wx7SHdLdLNjgWekYDLA18"/>
+<div class="p-3 text-sm text-on-surface leading-relaxed">
+                                Here is my setup. Keeping it minimal as we planned!
+                            </div>
+</div>
+</div>
+<span class="font-label text-[9px] font-bold uppercase text-outline pb-1">09:16 AM</span>
+</div>
+<!-- Sent Message -->
+<div class="flex items-end gap-3 max-w-[80%] ml-auto flex-row-reverse">
+<div class="aura-kinetic-sent p-4 rounded-2xl rounded-br-none text-sm text-[#1b1b24] font-medium leading-relaxed">
+                        That space looks incredibly calming. Let's touch base at 5 PM for the daily review?
+                    </div>
+<span class="font-label text-[9px] font-bold uppercase text-outline pb-1">09:18 AM</span>
+</div>
+</div>
+<!-- Input Bar -->
+<div class="p-6 bg-surface-container-low/80 backdrop-blur-md">
+<div class="flex items-center gap-4 bg-surface-container-lowest rounded-full px-6 py-2 shadow-[0_8px_20px_rgba(59,42,225,0.04)] border border-outline-variant/10">
+<button class="text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined">add_circle</span>
+</button>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-sm font-body text-on-surface placeholder:text-outline-variant" placeholder="Type a message..." type="text"/>
+<div class="flex items-center gap-3">
+<button class="text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined">sentiment_satisfied</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center bg-primary text-on-primary rounded-full hover:shadow-lg transition-all active:scale-90">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">send</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-[#fcf8ff]/80 backdrop-blur-lg rounded-t-[1.5rem] shadow-[0_-10px_30px_rgba(59,42,225,0.04)] z-50">
+<div class="flex flex-col items-center justify-center text-slate-400 px-5 py-2 hover:text-[#3b2ae1] transition-all">
+<span class="material-symbols-outlined">check_circle</span>
+<span class="font-label text-[10px] font-bold uppercase tracking-widest mt-1">Habits</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-[#B3F240] text-[#1b1b24] rounded-xl px-5 py-2 scale-105 transform transition-transform duration-300">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">forum</span>
+<span class="font-label text-[10px] font-bold uppercase tracking-widest mt-1">Chat</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 px-5 py-2 hover:text-[#3b2ae1] transition-all">
+<span class="material-symbols-outlined">insights</span>
+<span class="font-label text-[10px] font-bold uppercase tracking-widest mt-1">Growth</span>
+</div>
+</nav>
+</body></html>

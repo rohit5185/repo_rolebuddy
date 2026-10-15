@@ -1,0 +1,428 @@
+import React, { useState, useMemo } from 'react';
+import {
+    Search,
+    Filter,
+    UserPlus,
+    CheckCircle2,
+    MessageSquare,
+    Briefcase,
+    Zap,
+    Globe,
+    Star,
+    ChevronRight,
+    TrendingUp,
+    Users,
+    LayoutGrid,
+    SlidersHorizontal,
+    X,
+    MapPin,
+    Calendar,
+    ExternalLink,
+    ShieldCheck
+} from 'lucide-react';
+
+// --- MOCK DATA ---
+const CURRENT_USER = {
+    id: 'me',
+    name: 'Alex Rivera',
+    role: 'Product Designer',
+    skills: ['Figma', 'React', 'UI/UX', 'User Research'],
+    industry: 'Fintech'
+};
+
+const PROFESSIONALS = [
+    { id: 1, name: 'Sarah Chen', role: 'Product Designer', industry: 'Fintech', skills: ['Figma', 'Prototyping', 'React', 'Design Systems'], bio: 'Passionate about building accessible financial tools. Specialized in scalable design systems.', location: 'San Francisco, CA', experience: '6 years', avatar: 'SC' },
+    { id: 2, name: 'Marcus Thorne', role: 'Product Designer', industry: 'Healthcare', skills: ['Figma', 'System Design', 'Accessibility'], bio: 'Designing for complex medical ecosystems. Focused on patient-centric mobile interfaces.', location: 'Austin, TX', experience: '8 years', avatar: 'MT' },
+    { id: 3, name: 'Elena Rodriguez', role: 'UX Researcher', industry: 'Fintech', skills: ['User Research', 'Data Analysis', 'Psychology'], bio: 'Turning raw data into actionable design insights through behavioral studies.', location: 'Remote', experience: '4 years', avatar: 'ER' },
+    { id: 4, name: 'David Kim', role: 'Frontend Developer', industry: 'E-commerce', skills: ['React', 'Tailwind', 'Three.js'], bio: 'Bringing designs to life with performant code and immersive web experiences.', location: 'New York, NY', experience: '3 years', avatar: 'DK' },
+    { id: 5, name: 'Jessica Wu', role: 'Product Manager', industry: 'Fintech', skills: ['Strategy', 'Roadmapping', 'Agile'], bio: 'Bridging the gap between business and engineering to ship high-impact fintech products.', location: 'Singapore', experience: '7 years', avatar: 'JW' },
+    { id: 6, name: 'Liam O’Brien', role: 'Backend Engineer', industry: 'Fintech', skills: ['Node.js', 'PostgreSQL', 'Redis'], bio: 'Architecting scalable server-side solutions with a focus on data security.', location: 'Dublin, IE', experience: '5 years', avatar: 'LO' },
+    { id: 7, name: 'Sophie Martin', role: 'Product Designer', industry: 'Gaming', skills: ['Figma', 'Unity', '3D Modeling'], bio: 'Exploring the intersection of UX and Gaming. I love crafting immersive UI for RPGs.', location: 'Paris, FR', experience: '2 years', avatar: 'SM' },
+    { id: 8, name: 'Jordan Hayes', role: 'Marketing Lead', industry: 'SaaS', skills: ['Growth', 'SEO', 'PPC'], bio: 'Scaling SaaS products through data-driven marketing and creative storytelling.', location: 'London, UK', experience: '10 years', avatar: 'JH' },
+    { id: 9, name: 'Kevin Zhang', role: 'Frontend Developer', industry: 'Fintech', skills: ['Vue', 'D3.js', 'WebSockets'], bio: 'Specializing in financial data visualization and real-time dashboard analytics.', location: 'Remote', experience: '4 years', avatar: 'KZ' },
+];
+
+const DiscoveryPage = () => {
+    const [searchQuery, setSearchQuery] = useState('');
+    const [activeFilter, setActiveFilter] = useState('All Roles');
+    const [sortBy, setSortBy] = useState('match');
+    const [selectedProfile, setSelectedProfile] = useState(null);
+
+    // --- MATCH LOGIC ---
+    const calculateMatch = (prof) => {
+        let score = 50;
+        const reason = [];
+
+        if (prof.role === CURRENT_USER.role) {
+            score += 45;
+            reason.push('Same Role');
+        } else if (prof.role.includes('Designer') || prof.role.includes('UX')) {
+            score += 25;
+            reason.push('Related Role');
+        }
+
+        if (prof.industry === CURRENT_USER.industry) {
+            score += 5;
+            reason.push('Same Industry');
+        }
+
+        return { score: Math.min(score, 100), reasons: reason };
+    };
+
+    const processedProfiles = useMemo(() => {
+        return PROFESSIONALS.map(p => ({
+            ...p,
+            match: calculateMatch(p)
+        }))
+            .filter(p => {
+                const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    p.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    p.skills.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()));
+                const matchesFilter = activeFilter === 'All Roles' || p.role === activeFilter;
+                return matchesSearch && matchesFilter;
+            })
+            .sort((a, b) => {
+                if (sortBy === 'match') return b.match.score - a.match.score;
+                return b.id - a.id;
+            });
+    }, [searchQuery, activeFilter, sortBy]);
+
+    const roleCounts = useMemo(() => {
+        const counts = { 'All Roles': PROFESSIONALS.length };
+        PROFESSIONALS.forEach(p => {
+            counts[p.role] = (counts[p.role] || 0) + 1;
+        });
+        return counts;
+    }, []);
+
+    const roles = Object.keys(roleCounts);
+
+    return (
+        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans flex flex-col relative">
+
+            {/* Profile Detail Modal */}
+            {selectedProfile && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div
+                        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
+                        onClick={() => setSelectedProfile(null)}
+                    ></div>
+
+                    <div className="bg-white w-full max-w-2xl rounded-[32px] shadow-2xl overflow-hidden relative animate-in fade-in zoom-in duration-200">
+                        {/* Modal Header/Cover */}
+                        <div className="h-32 bg-gradient-to-r from-indigo-500 to-purple-600 relative">
+                            <button
+                                onClick={() => setSelectedProfile(null)}
+                                className="absolute top-4 right-4 p-2 bg-black/20 hover:bg-black/40 text-white rounded-full transition-colors z-10"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className="px-8 pb-10 -mt-12 relative">
+                            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+                                <div className="flex items-end gap-5">
+                                    <div className="w-28 h-28 rounded-3xl bg-white p-1.5 shadow-xl">
+                                        <div className="w-full h-full rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-black text-3xl">
+                                            {selectedProfile.avatar}
+                                        </div>
+                                    </div>
+                                    <div className="pb-2">
+                                        <h2 className="text-2xl font-black text-slate-900 leading-tight">{selectedProfile.name}</h2>
+                                        <p className="text-indigo-600 font-bold flex items-center gap-1">
+                                            <Briefcase size={16} />
+                                            {selectedProfile.role}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-2xl flex flex-col items-center">
+                                    <span className="text-emerald-600 text-2xl font-black">{selectedProfile.match.score}%</span>
+                                    <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-widest">Similarity</span>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                <div className="md:col-span-2 space-y-6">
+                                    <section>
+                                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                            <Star size={14} className="text-amber-400" />
+                                            About Professional
+                                        </h3>
+                                        <p className="text-slate-600 leading-relaxed font-medium">
+                                            {selectedProfile.bio}
+                                        </p>
+                                    </section>
+
+                                    <section>
+                                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                            <Zap size={14} className="text-indigo-500" />
+                                            Skills & Expertise
+                                        </h3>
+                                        <div className="flex flex-wrap gap-2">
+                                            {selectedProfile.skills.map(skill => (
+                                                <span key={skill} className="bg-slate-50 border border-slate-100 text-slate-600 px-3 py-1.5 rounded-xl text-xs font-bold">
+                                                    {skill}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </section>
+
+                                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-50">
+                                        <div className="flex items-center gap-3 text-slate-500">
+                                            <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center">
+                                                <MapPin size={18} className="text-slate-400" />
+                                            </div>
+                                            <div className="text-xs">
+                                                <p className="text-slate-400 font-bold uppercase tracking-tighter">Location</p>
+                                                <p className="font-bold text-slate-800">{selectedProfile.location}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-3 text-slate-500">
+                                            <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center">
+                                                <Calendar size={18} className="text-slate-400" />
+                                            </div>
+                                            <div className="text-xs">
+                                                <p className="text-slate-400 font-bold uppercase tracking-tighter">Experience</p>
+                                                <p className="font-bold text-slate-800">{selectedProfile.experience}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Match Analysis</h4>
+                                        <ul className="space-y-3">
+                                            {selectedProfile.match.reasons.map(reason => (
+                                                <li key={reason} className="flex items-center gap-2 text-xs font-bold text-slate-700">
+                                                    <ShieldCheck size={14} className="text-indigo-500" />
+                                                    {reason}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+
+                                    <button className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black text-sm hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 shadow-xl shadow-indigo-100">
+                                        <UserPlus size={18} />
+                                        Connect
+                                    </button>
+                                    <button className="w-full border-2 border-slate-100 text-slate-600 py-4 rounded-2xl font-black text-sm hover:bg-slate-50 transition-all flex items-center justify-center gap-2">
+                                        <MessageSquare size={18} />
+                                        Message
+                                    </button>
+                                    <button className="w-full flex items-center justify-center gap-2 text-slate-400 text-xs font-bold hover:text-indigo-600 transition-colors pt-2">
+                                        <ExternalLink size={14} />
+                                        View Portfolio
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Navbar */}
+            <nav className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between sticky top-0 z-50">
+                <div className="flex items-center gap-2">
+                    <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-100">
+                        <Zap className="text-white w-5 h-5 fill-current" />
+                    </div>
+                    <span className="text-xl font-bold tracking-tight text-slate-800">RoleBuddy</span>
+                </div>
+                <div className="flex items-center gap-5">
+                    <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-500">
+                        <a href="#" className="text-indigo-600 font-bold">Discovery</a>
+                        <a href="#" className="hover:text-slate-800 transition-colors font-bold">My Network</a>
+                        <a href="#" className="hover:text-slate-800 transition-colors font-bold">Messages</a>
+                    </div>
+                    <div className="h-6 w-[1px] bg-slate-200 hidden md:block"></div>
+                    <div className="flex items-center gap-3">
+                        <div className="text-right hidden sm:block">
+                            <p className="text-xs font-bold text-slate-900 leading-none">{CURRENT_USER.name}</p>
+                            <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider mt-1">{CURRENT_USER.role}</p>
+                        </div>
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 border-2 border-white shadow-sm flex items-center justify-center text-white font-bold text-xs">
+                            AR
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <div className="flex flex-1 overflow-hidden">
+                {/* Sidebar - Role Aggregator */}
+                <aside className="w-72 bg-white border-r border-slate-200 hidden lg:flex flex-col p-6 overflow-y-auto">
+                    <div className="mb-8">
+                        <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Categories</h2>
+                        <nav className="space-y-1">
+                            {roles.map(role => (
+                                <button
+                                    key={role}
+                                    onClick={() => setActiveFilter(role)}
+                                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${activeFilter === role
+                                            ? 'bg-indigo-50 text-indigo-700 shadow-sm'
+                                            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                        }`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        {role === 'All Roles' ? <LayoutGrid size={18} /> : <Users size={18} />}
+                                        <span className="font-bold">{role}</span>
+                                    </div>
+                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${activeFilter === role ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-400'
+                                        }`}>
+                                        {roleCounts[role]}
+                                    </span>
+                                </button>
+                            ))}
+                        </nav>
+                    </div>
+
+                    <div className="mt-auto p-4 bg-indigo-900 rounded-3xl text-white relative overflow-hidden group cursor-pointer">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+                        <div className="relative z-10">
+                            <p className="text-[10px] font-black text-indigo-300 uppercase tracking-widest mb-1">AI Recommendation</p>
+                            <p className="text-sm font-bold leading-tight">Finding peers for you...</p>
+                            <div className="w-full h-1 bg-white/20 rounded-full mt-3 overflow-hidden">
+                                <div className="w-2/3 h-full bg-white rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                {/* Main Content */}
+                <main className="flex-1 overflow-y-auto p-6 md:p-10">
+                    <div className="max-w-5xl mx-auto">
+                        {/* Control Bar */}
+                        <div className="flex flex-col md:flex-row items-center gap-4 mb-8">
+                            <div className="relative flex-1 w-full">
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                                <input
+                                    type="text"
+                                    placeholder="Search by name, role, or skills..."
+                                    className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 outline-none transition-all shadow-sm text-sm font-medium"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                            </div>
+                            <div className="flex items-center gap-3 w-full md:w-auto">
+                                <select
+                                    className="bg-white border border-slate-200 rounded-2xl px-4 py-3.5 text-sm font-bold text-slate-600 outline-none shadow-sm cursor-pointer hover:border-slate-300 transition-colors flex-1 md:flex-none"
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                >
+                                    <option value="match">Best Match</option>
+                                    <option value="newest">Newest First</option>
+                                </select>
+                                <button className="p-3.5 bg-white border border-slate-200 rounded-2xl text-slate-600 shadow-sm hover:bg-slate-50 transition-colors">
+                                    <SlidersHorizontal size={20} />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Results Title */}
+                        <div className="flex items-end justify-between mb-6">
+                            <div>
+                                <h1 className="text-2xl font-black text-slate-900 tracking-tight">{activeFilter}</h1>
+                                <p className="text-sm text-slate-500 mt-1 font-medium">Verified professionals ranked by similarity to your profile.</p>
+                            </div>
+                        </div>
+
+                        {/* Profiles Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                            {processedProfiles.map((profile) => (
+                                <div
+                                    key={profile.id}
+                                    onClick={() => setSelectedProfile(profile)}
+                                    className={`group relative bg-white border rounded-[28px] p-6 transition-all hover:shadow-2xl hover:shadow-indigo-100 hover:-translate-y-1.5 cursor-pointer flex flex-col ${profile.match.score >= 90 ? 'border-indigo-100 ring-1 ring-indigo-50/50' : 'border-slate-100'
+                                        }`}
+                                >
+                                    {/* Matching Indicator Ribbon */}
+                                    {profile.match.score >= 90 && (
+                                        <div className="absolute top-4 right-4 flex items-center gap-1 bg-indigo-600 text-white text-[10px] font-black px-2.5 py-1.5 rounded-xl shadow-lg shadow-indigo-100 uppercase tracking-tighter">
+                                            <Star size={10} fill="currentColor" />
+                                            Elite Match
+                                        </div>
+                                    )}
+
+                                    <div className="flex flex-col h-full">
+                                        <div className="flex items-center gap-4 mb-5">
+                                            <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-black text-xl group-hover:scale-105 transition-transform overflow-hidden">
+                                                {profile.avatar}
+                                            </div>
+                                            <div className="overflow-hidden">
+                                                <h3 className="font-black text-slate-900 group-hover:text-indigo-600 transition-colors truncate text-base">{profile.name}</h3>
+                                                <p className="text-xs font-bold text-slate-400 flex items-center gap-1 mt-0.5">
+                                                    <Briefcase size={12} />
+                                                    {profile.role}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="mb-5 flex items-center justify-between bg-slate-50/80 rounded-2xl p-3 border border-slate-100">
+                                            <div className="flex items-center gap-2">
+                                                <div className={`w-2 h-2 rounded-full ${profile.match.score >= 90 ? 'bg-indigo-500 animate-pulse' : 'bg-emerald-400'}`}></div>
+                                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Match Score</span>
+                                            </div>
+                                            <span className={`text-lg font-black ${profile.match.score >= 90 ? 'text-indigo-600' : 'text-emerald-600'}`}>
+                                                {profile.match.score}%
+                                            </span>
+                                        </div>
+
+                                        <p className="text-slate-500 text-xs leading-relaxed mb-6 line-clamp-2 font-medium">
+                                            {profile.bio}
+                                        </p>
+
+                                        <div className="flex flex-wrap gap-1.5 mb-8 mt-auto">
+                                            {profile.match.reasons.map(reason => (
+                                                <span key={reason} className="bg-indigo-50 text-indigo-700 text-[10px] font-bold px-2.5 py-1 rounded-lg">
+                                                    {reason}
+                                                </span>
+                                            ))}
+                                            <span className="bg-slate-100 text-slate-600 text-[10px] font-bold px-2.5 py-1 rounded-lg">
+                                                {profile.location}
+                                            </span>
+                                        </div>
+
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); /* Logic for connect */ }}
+                                                className="flex-1 bg-slate-900 text-white py-3.5 rounded-2xl font-black text-xs hover:bg-indigo-600 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-slate-100"
+                                            >
+                                                <UserPlus size={14} />
+                                                Connect
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); setSelectedProfile(profile); }}
+                                                className="p-3.5 border-2 border-slate-100 rounded-2xl hover:bg-slate-50 hover:border-slate-200 transition-all text-slate-600"
+                                            >
+                                                <ChevronRight size={18} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Empty State */}
+                        {processedProfiles.length === 0 && (
+                            <div className="py-24 text-center bg-white border-2 border-dashed border-slate-200 rounded-[40px] mt-8">
+                                <div className="w-24 h-24 bg-slate-50 rounded-3xl flex items-center justify-center mx-auto mb-6 text-slate-300">
+                                    <Search size={44} />
+                                </div>
+                                <h3 className="text-xl font-black text-slate-800 mb-2">No professionals found</h3>
+                                <p className="text-slate-500 text-sm font-medium">Try resetting your filters or adjusting your search keywords.</p>
+                                <button
+                                    onClick={() => { setSearchQuery(''); setActiveFilter('All Roles'); }}
+                                    className="mt-8 bg-indigo-600 text-white px-10 py-4 rounded-2xl font-black text-sm hover:shadow-2xl hover:shadow-indigo-100 transition-all"
+                                >
+                                    Reset Discovery
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </main>
+            </div>
+        </div>
+    );
+};
+
+export default DiscoveryPage;

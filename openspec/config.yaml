@@ -1,0 +1,236 @@
+# OpenSpec Configuration
+# RoleBuddy — AI Agent Behavior Contract
+
+---
+
+project:
+  name: RoleBuddy
+  type: Production SaaS
+  codename_legacy: RoleSync  # used in some early research artifacts — same product
+  description: >
+    Role-based peer accountability platform for job preparation.
+    Users find peers preparing for the SAME role, get matched 1:1, and hold each
+    other accountable through daily check-ins, streak tracking, and partner visibility.
+    This is NOT a content platform, NOT a job board, NOT a social network.
+    It is a consistency + accountability system built on behavioral design principles.
+  version: "1.0.0"
+  phase_current: Phase 1 complete, Phase 2 in progress
+
+---
+
+product_context:
+
+  problem_statement: >
+    Job preparation fails because it is isolated, unstructured, and inconsistent.
+    Users cannot find peers preparing for the same role.
+    They lose motivation alone after a few days.
+    Existing platforms (LinkedIn, Discord, LeetCode, Glassdoor) solve fragments —
+    networking OR content OR community — but none enforce a daily accountability loop.
+
+  core_insight: >
+    The product succeeds through behavior and retention mechanics, not feature breadth.
+    Peer pressure, streaks, and partner visibility are more valuable than content features.
+    Every feature decision must answer: "Does this improve accountability?"
+
+  target_users:
+    primary: Final-year CS/IT students and freshers (0-2 yrs) preparing for tech roles
+    secondary: Career switchers and early professionals
+
+  north_star_metric: "Weekly active accountability pairs"
+  daily_action: "User marks daily check-in (done / not_done) in their conversation"
+
+  what_is_built:
+    - Auth (signup, login, JWT via cookie + bearer fallback)
+    - Onboarding (domain, role, experience, specialization, skills, goals, availability)
+    - Matching engine (hierarchical relaxation scoring, 24h active window)
+    - Dashboard (streak, check-in state, partner status, today accountability state)
+    - Discovery (role aggregate search, sample users per role — no PII)
+    - Connection system (requests, accept/reject, suggestions, search, display names)
+    - Chat (REST + Socket.IO, conversations, paginated messages, seen state)
+    - Accountability mechanics (daily check-in prompt, streak logic, alert on missed goal)
+    - Activity tracking (lastActiveAt heartbeat, checkInHistory, streakCount)
+    - OpenAPI spec and response format standardization
+
+  what_is_NOT_built:
+    - AI-powered suggestions or study plans
+    - Gamification (badges, leaderboards, points)
+    - Mock interview scheduling or group sessions
+    - Group chat (>2 users)
+    - Push/email notification system
+    - Rate limiting and brute-force protection
+    - Trust/safety moderation system
+    - Advanced analytics and KPI dashboards
+    - Native mobile application
+
+  ui_product_requirements:
+    - All frontend UI must be mobile-responsive by default (mobile-first where possible)
+    - Every new UI screen must support common phone widths before desktop polish
+    - UI should remain PWA-friendly (installable web app compatible)
+    - Avoid desktop-only interaction patterns in core flows
+    - Keep responsive behavior and touch usability in scope for all frontend changes
+
+  product_guardrails:
+    - Matching is 1:1 only — no group matching
+    - Chat only between matched or connected users — no open DMs to strangers
+    - daily_checkin message type is system-generated only — users cannot create it
+    - Discovery exposes no PII — only role, experience, dailyGoal, status
+    - Match pool is active users only — lastActiveAt within last 24 hours
+    - Streak increments only on consecutive done check-ins
+    - Do NOT add AI, gamification, or notifications until explicitly scoped
+
+---
+
+tech_stack:
+  backend:
+    runtime: Node.js (ES Modules — "type": "module" in package.json)
+    framework: Express 4.x
+    database: MongoDB via Mongoose 8.x
+    auth: JWT (jsonwebtoken 9.x) + HttpOnly cookie
+    realtime: Socket.IO 4.x
+    password_hashing: bcryptjs
+    port_default: 5000
+
+  frontend:
+    framework: Next.js (App Router)
+    language: TypeScript
+    styling: Tailwind CSS
+    state: (TODO — verify store implementation)
+    port_default: 3000
+    ui_baseline: Mobile-responsive, touch-friendly, PWA-ready web UX
+
+---
+
+architecture:
+  pattern: Feature-based monorepo
+  backend_src: backend/src/
+  frontend_src: frontend/
+
+  backend_feature_structure:
+    - "<feature>.controller.js"   # thin — HTTP in/out only
+    - "<feature>.routes.js"       # express Router + middleware
+    - "<feature>.service.js"      # ALL business logic
+    - "<feature>.model.js"        # Mongoose schema (if model exists)
+    - "<feature>.utils.js"        # pure utility functions (if needed)
+    - "<feature>.socket.js"       # Socket.IO handlers (if realtime)
+
+---
+
+coding_rules:
+  - All async route handlers MUST use asyncHandler() wrapper
+  - All validation errors MUST throw AppError with HTTP status code
+  - Never expose password field in any response
+  - Never return raw Mongoose documents — always serialize
+  - All text schema fields use trim: true
+  - All string inputs sanitized before DB write
+  - No console.log in production paths (use structured logging if needed)
+  - ES Module syntax only (import/export) — no require()
+
+---
+
+api_conventions:
+  base_url: /api
+  auth_header: "Authorization: Bearer <token>"
+  auth_cookie: "accessToken (HttpOnly)"
+
+  standard_response_format:
+    success: '{ "message": "...", "data": { ... } }'
+    error: '{ "message": "...", "data": null }'
+    error_dev_only: '{ "message": "...", "data": null, "stack": "..." }'
+
+  exceptions: none
+
+  http_status_codes:
+    200: OK
+    201: Created
+    400: Bad Request (validation)
+    401: Unauthorized (no token / invalid token)
+    404: Not Found
+    409: Conflict (duplicate / already exists)
+    500: Internal Server Error
+
+---
+
+security_rules:
+  - JWT verified on every protected route via verifyJwt middleware
+  - Token extracted from cookie first, then Authorization header
+  - Socket.IO auth: token from handshake.auth.token, then Authorization header, then cookie
+  - Passwords hashed with bcrypt salt rounds: 12
+  - JWT default expiry: 7d (configurable via JWT_EXPIRES_IN env var)
+  - Cookie: HttpOnly=true, Secure=true (production), SameSite=none (production) / lax (dev)
+  - CORS: credentials:true, origin from CLIENT_ORIGIN env var
+
+---
+
+environment_variables:
+  required:
+    - MONGO_URI
+    - JWT_SECRET
+  optional:
+    - PORT               # default: 5000
+    - NODE_ENV           # default: development
+    - CLIENT_ORIGIN      # default: http://localhost:3000
+    - JWT_EXPIRES_IN     # default: 7d
+    - JWT_COOKIE_MAX_AGE_MS  # default: 604800000 (7 days in ms)
+
+---
+
+database:
+  type: MongoDB
+  odm: Mongoose 8.x
+  primary_model: User (auth.model.js)
+  chat_models:
+    - Conversation (chat.model.js)
+    - Message (chat.model.js)
+
+---
+
+realtime:
+  library: Socket.IO 4.x
+  transport: WebSocket (with polling fallback)
+  auth: JWT verified in middleware on every connection
+  rooms:
+    conversation_room: "conversation:<conversationId>"
+    user_room: "user:<userId>"
+  events_client_to_server:
+    - join_conversation
+    - send_message
+    - mark_seen
+  events_server_to_client:
+    - new_message
+    - message_seen
+    - (TODO — verify all emitted events in chat.service.js)
+
+---
+
+matching_algorithm:
+  strategy: Hierarchical relaxation
+  cutoff: Users active within last 24 hours
+  score_levels:
+    100: same role + same experience
+    90:  same role
+    80:  same specialization + same experience
+    70:  same specialization
+    60:  same domainArea + same experience
+    50:  same domainArea (or fallback)
+    40:  fallback score (any active user)
+  sort: lastActiveAt DESC, createdAt DESC
+
+---
+
+onboarding:
+  modes:
+    legacy: "role + experience + dailyGoal + availability (simple)"
+    structured: "domain + primaryArea/area + specialization + role + experience + skills + goal + dailyGoal + availabilityFrequency + availabilityTime + preferences"
+  domain_values: [tech, non-tech]
+  experience_values:
+    - "student / fresher"
+    - fresher
+    - beginner
+    - junior
+    - mid-level
+    - senior
+    - manager
+    - "lead / head"
+    - experienced
+  daily_goal_values: [1, 2, 3]
+  availability_time_values: [morning, afternoon, night]
