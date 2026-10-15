@@ -42,7 +42,7 @@ jobs:
           STAGING_APP_DIR: ${{ secrets.STAGING_APP_DIR }}
 
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.2.2
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: ${{ secrets.STAGING_HOST }}
           username: ${{ secrets.STAGING_USER }}
